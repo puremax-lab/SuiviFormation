@@ -9,7 +9,7 @@ No account needed: the demo opens with sample data. Use the **Rôle** menu at th
 
 ![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-39_passing-2ea44f?logo=vitest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-40_passing-2ea44f?logo=vitest&logoColor=white)
 ![GitHub Pages](https://img.shields.io/badge/deployed_on-GitHub_Pages-222?logo=github)
 
 ![Dashboard](docs/screenshots/dashboard.png)
