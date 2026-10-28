@@ -1,0 +1,46 @@
+<div class="page-header">
+  <div>
+    <h1>Sessions</h1>
+    <p class="muted">{{ cards().length }} session{{ cards().length > 1 ? 's' : '' }}</p>
+  </div>
+  @if (isAdmin()) {
+    <a routerLink="/sessions/nouvelle" class="btn">+ Nouvelle session</a>
+  }
+</div>
+
+<div class="chips" role="group" aria-label="Filtrer les sessions">
+  @for (option of filters; track option.value) {
+    <button
+      type="button"
+      class="chip"
+      [class.active]="filter() === option.value"
+      [attr.aria-pressed]="filter() === option.value"
+      (click)="filter.set(option.value)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
+
+<div class="cards">
+  @for (card of cards(); track card.session.id) {
+    <a class="card card-link" [routerLink]="['/sessions', card.session.id]">
+      <span class="badge" [class]="'state-' + card.state">{{ card.state | stateLabel }}</span>
+      <h2>{{ card.session.title }}</h2>
+      <p class="muted small">
+        avec {{ card.session.trainer }}<br />
+        du {{ card.session.startDate | date: 'd MMM' }} au
+        {{ card.session.endDate | date: 'd MMM y' }}
+      </p>
+      <div class="progress" [attr.aria-label]="'Avancement : ' + card.progress + ' %'">
+        <span [style.width.%]="card.progress"></span>
+      </div>
+      <div class="card-footer">
+        <span class="small">{{ card.trainees }} stagiaire{{ card.trainees > 1 ? 's' : '' }}</span>
+        <app-rate [value]="card.rate" />
+      </div>
+    </a>
+  } @empty {
+    <p class="muted">Aucune session dans cette catégorie.</p>
+  }
+</div>

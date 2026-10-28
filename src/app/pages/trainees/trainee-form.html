@@ -1,0 +1,79 @@
+@if (notFound()) {
+  <div class="empty-state">
+    <h1>Stagiaire introuvable</h1>
+    <a routerLink="/stagiaires" class="btn">Voir les stagiaires</a>
+  </div>
+} @else {
+  <a routerLink="/stagiaires" class="back-link">← Retour</a>
+  <h1>{{ id() ? 'Modifier le stagiaire' : 'Nouveau stagiaire' }}</h1>
+
+  <form class="card form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="field-row">
+      <div class="field">
+        <label for="firstname">Prénom</label>
+        <input
+          id="firstname"
+          formControlName="firstname"
+          autocomplete="off"
+          [class.is-invalid]="invalid('firstname')"
+        />
+        @if (invalid('firstname')) {
+          <p class="error">Entre 2 et 40 caractères.</p>
+        }
+      </div>
+      <div class="field">
+        <label for="lastname">Nom</label>
+        <input
+          id="lastname"
+          formControlName="lastname"
+          autocomplete="off"
+          [class.is-invalid]="invalid('lastname')"
+        />
+        @if (invalid('lastname')) {
+          <p class="error">Entre 2 et 60 caractères.</p>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="off"
+        [class.is-invalid]="invalid('email')"
+      />
+      @if (invalid('email')) {
+        <p class="error">
+          @if (form.controls.email.hasError('emailTaken')) {
+            Cet email est déjà utilisé par un autre stagiaire.
+          } @else {
+            Adresse email valide obligatoire.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="field">
+      <label for="sessionId">Session</label>
+      <select id="sessionId" formControlName="sessionId" [class.is-invalid]="invalid('sessionId')">
+        <option value="" disabled>Choisir une session</option>
+        @for (session of sessions(); track session.id) {
+          <option [value]="session.id">{{ session.title }}</option>
+        }
+      </select>
+      @if (invalid('sessionId')) {
+        <p class="error">Choisissez une session.</p>
+      }
+      @if (movesSession()) {
+        <p class="warning">Les présences déjà notées dans l'ancienne session seront supprimées.</p>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">Enregistrer</button>
+      <a routerLink="/stagiaires" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+}

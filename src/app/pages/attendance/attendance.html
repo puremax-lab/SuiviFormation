@@ -1,0 +1,100 @@
+<div class="page-header">
+  <div>
+    <h1>Présences</h1>
+    <p class="muted">Cliquez sur un statut pour le noter, et à nouveau pour l'effacer.</p>
+  </div>
+</div>
+
+@if (current(); as session) {
+  <div class="toolbar">
+    <select aria-label="Session" (change)="select({ session: $any($event.target).value })">
+      @for (option of sessions(); track option.id) {
+        <option [value]="option.id" [selected]="option.id === session.id">
+          {{ option.title }}
+        </option>
+      }
+    </select>
+    <div class="day-picker">
+      <button type="button" class="icon-button" aria-label="Jour précédent" (click)="shiftDay(-1)">
+        ‹
+      </button>
+      <input
+        type="date"
+        aria-label="Jour"
+        [value]="day()"
+        [min]="session.startDate"
+        [max]="session.endDate"
+        (change)="$any($event.target).value && select({ date: $any($event.target).value })"
+      />
+      <button type="button" class="icon-button" aria-label="Jour suivant" (click)="shiftDay(1)">
+        ›
+      </button>
+    </div>
+  </div>
+
+  <h2 class="day-title">{{ day() | date: 'EEEE d MMMM y' }}</h2>
+
+  @if (outOfRange()) {
+    <p class="notice">
+      Ce jour est en dehors de la session (du {{ session.startDate | date: 'd MMM' }} au
+      {{ session.endDate | date: 'd MMM y' }}).
+    </p>
+  } @else if (weekend()) {
+    <p class="notice">C'est un week-end : pas de cours prévu.</p>
+  } @else if (isFuture()) {
+    <p class="notice">Ce jour n'est pas encore passé : l'appel se fait le jour même.</p>
+  } @else {
+    <div class="summary">
+      <span class="pill status-present"
+        >{{ summary().present }} présent{{ summary().present > 1 ? 's' : '' }}</span
+      >
+      <span class="pill status-late">{{ summary().late }} en retard</span>
+      <span class="pill status-absent"
+        >{{ summary().absent }} absent{{ summary().absent > 1 ? 's' : '' }}</span
+      >
+      @if (summary().missing) {
+        <span class="pill"
+          >{{ summary().missing }} non noté{{ summary().missing > 1 ? 's' : '' }}</span
+        >
+      }
+      @if (rows().length && summary().missing === rows().length) {
+        <button type="button" class="btn btn-small" (click)="markAllPresent()">
+          Tout le monde est présent
+        </button>
+      }
+    </div>
+
+    <section class="card">
+      @for (row of rows(); track row.trainee.id) {
+        <div class="attendance-row" [ngClass]="row.status ? 'row-' + row.status : ''">
+          <span class="strong">{{ row.trainee.firstname }} {{ row.trainee.lastname }}</span>
+          <div
+            class="segmented"
+            role="group"
+            [attr.aria-label]="'Statut de ' + row.trainee.firstname"
+          >
+            @for (option of statuses; track option.value) {
+              <button
+                type="button"
+                [class]="'status-' + option.value"
+                [class.selected]="row.status === option.value"
+                [attr.aria-pressed]="row.status === option.value"
+                (click)="mark(row.trainee.id, option.value, row.status)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="muted">Aucun stagiaire dans cette session.</p>
+      }
+    </section>
+  }
+} @else {
+  <div class="empty-state">
+    <h2>Aucune session commencée</h2>
+    <p class="muted">L'appel est possible dès le premier jour d'une session.</p>
+    <a routerLink="/sessions" class="btn">Voir les sessions</a>
+  </div>
+}

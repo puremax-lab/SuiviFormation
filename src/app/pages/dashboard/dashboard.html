@@ -1,0 +1,88 @@
+<div class="page-header">
+  <div>
+    <h1>Tableau de bord</h1>
+    <p class="muted">{{ today | date: 'fullDate' }}</p>
+  </div>
+</div>
+
+<section class="stats" aria-label="Chiffres clés">
+  <div class="stat">
+    <span class="stat-value">{{ ongoing().length }}</span>
+    <span class="stat-label">Sessions en cours</span>
+  </div>
+  <div class="stat">
+    <span class="stat-value">{{ activeTrainees() }}</span>
+    <span class="stat-label">Stagiaires en formation</span>
+  </div>
+  <div class="stat">
+    <span class="stat-value">{{ overallRate() === null ? '—' : overallRate() + ' %' }}</span>
+    <span class="stat-label">Taux de présence global</span>
+  </div>
+  <div class="stat" [class.stat-alert]="toTake() > 0">
+    <span class="stat-value">{{ toTake() }}</span>
+    <span class="stat-label">Appels à faire aujourd'hui</span>
+  </div>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Aujourd'hui</h2>
+    @if (isWeekend) {
+      <p class="muted">C'est le week-end : pas de cours aujourd'hui.</p>
+    } @else {
+      @for (item of ongoing(); track item.session.id) {
+        <div class="today-row">
+          <div>
+            <a [routerLink]="['/sessions', item.session.id]" class="strong">{{
+              item.session.title
+            }}</a>
+            <div class="muted small">{{ item.marked }} / {{ item.total }} stagiaires notés</div>
+          </div>
+          <a
+            class="btn"
+            [class.btn-outline]="item.marked === item.total"
+            routerLink="/presences"
+            [queryParams]="{ session: item.session.id, date: today }"
+          >
+            {{ item.marked === item.total ? "Voir l'appel" : "Faire l'appel" }}
+          </a>
+        </div>
+      } @empty {
+        <p class="muted">Aucune session en cours.</p>
+      }
+    }
+  </section>
+
+  <section class="card">
+    <h2>À surveiller</h2>
+    <p class="muted small">
+      Stagiaires en formation avec moins de {{ watchThreshold }} % de présence.
+    </p>
+    @for (item of toWatch(); track item.trainee.id) {
+      <div class="list-row">
+        <div>
+          <span class="strong">{{ item.trainee.firstname }} {{ item.trainee.lastname }}</span>
+          <div class="muted small">{{ item.session.title }}</div>
+        </div>
+        <app-rate [value]="item.rate" />
+      </div>
+    } @empty {
+      <p class="muted">Tout le monde est assidu 👏</p>
+    }
+  </section>
+</div>
+
+<section class="card">
+  <h2>Prochaines sessions</h2>
+  @for (session of upcoming(); track session.id) {
+    <div class="list-row">
+      <div>
+        <a [routerLink]="['/sessions', session.id]" class="strong">{{ session.title }}</a>
+        <div class="muted small">avec {{ session.trainer }}</div>
+      </div>
+      <span class="muted small">dès le {{ session.startDate | date: 'd MMMM' }}</span>
+    </div>
+  } @empty {
+    <p class="muted">Aucune session prévue.</p>
+  }
+</section>

@@ -1,0 +1,34 @@
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a routerLink="/" class="brand">
+      <span class="brand-mark" aria-hidden="true">✓</span>
+      SuiviFormation
+    </a>
+
+    <nav class="main-nav" aria-label="Navigation principale">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="label-long">Tableau de bord</span><span class="label-short">Accueil</span>
+      </a>
+      <a routerLink="/sessions" routerLinkActive="active">Sessions</a>
+      <a routerLink="/stagiaires" routerLinkActive="active">Stagiaires</a>
+      <a routerLink="/presences" routerLinkActive="active">Présences</a>
+    </nav>
+
+    <label class="role-switch">
+      <span>Rôle</span>
+      <select (change)="changeRole($any($event.target).value)">
+        <option value="admin" [selected]="roles.role() === 'admin'">Administrateur</option>
+        <option value="trainer" [selected]="roles.role() === 'trainer'">Formateur</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main class="container page">
+  <router-outlet />
+</main>
+
+<footer class="container footer">
+  Données de démonstration enregistrées dans votre navigateur.
+  <button type="button" class="link-button" (click)="resetDemo()">Réinitialiser la démo</button>
+</footer>

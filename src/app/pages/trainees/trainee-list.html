@@ -1,0 +1,86 @@
+<div class="page-header">
+  <div>
+    <h1>Stagiaires</h1>
+    <p class="muted">{{ rows().length }} stagiaire{{ rows().length > 1 ? 's' : '' }}</p>
+  </div>
+  @if (isAdmin()) {
+    <a routerLink="/stagiaires/nouveau" class="btn">+ Nouveau stagiaire</a>
+  }
+</div>
+
+<div class="toolbar">
+  <input
+    type="search"
+    placeholder="Rechercher un nom ou un email…"
+    aria-label="Rechercher un stagiaire"
+    [value]="search()"
+    (input)="search.set($any($event.target).value)"
+  />
+  <select aria-label="Filtrer par session" (change)="sessionId.set($any($event.target).value)">
+    <option value="">Toutes les sessions</option>
+    @for (session of sessions(); track session.id) {
+      <option [value]="session.id" [selected]="session.id === sessionId()">
+        {{ session.title }}
+      </option>
+    }
+  </select>
+</div>
+
+<section class="card">
+  @if (rows().length) {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th class="hide-mobile">Email</th>
+          <th class="hide-mobile">Session</th>
+          <th class="num">Présence</th>
+          @if (isAdmin()) {
+            <th class="num"><span class="sr-only">Actions</span></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.trainee.id) {
+          <tr>
+            <td>
+              <span class="strong">{{ row.trainee.firstname }} {{ row.trainee.lastname }}</span>
+              <div class="muted small show-mobile">{{ row.session?.title }}</div>
+            </td>
+            <td class="hide-mobile muted">{{ row.trainee.email }}</td>
+            <td class="hide-mobile">
+              @if (row.session) {
+                <a [routerLink]="['/sessions', row.session.id]">{{ row.session.title }}</a>
+              }
+            </td>
+            <td class="num"><app-rate [value]="row.rate" /></td>
+            @if (isAdmin()) {
+              <td class="num nowrap">
+                <a
+                  [routerLink]="['/stagiaires', row.trainee.id, 'modifier']"
+                  class="icon-button"
+                  [attr.aria-label]="
+                    'Modifier ' + row.trainee.firstname + ' ' + row.trainee.lastname
+                  "
+                  >✎</a
+                >
+                <button
+                  type="button"
+                  class="icon-button danger"
+                  [attr.aria-label]="
+                    'Supprimer ' + row.trainee.firstname + ' ' + row.trainee.lastname
+                  "
+                  (click)="delete(row.trainee)"
+                >
+                  ✕
+                </button>
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p class="muted">Aucun stagiaire ne correspond à votre recherche.</p>
+  }
+</section>

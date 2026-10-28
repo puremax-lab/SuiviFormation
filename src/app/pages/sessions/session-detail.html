@@ -1,0 +1,88 @@
+@if (session(); as session) {
+  <a routerLink="/sessions" class="back-link">← Toutes les sessions</a>
+
+  <div class="page-header">
+    <div>
+      <span class="badge" [class]="'state-' + state()">{{ state()! | stateLabel }}</span>
+      <h1>{{ session.title }}</h1>
+      <p class="muted">
+        avec {{ session.trainer }} · du {{ session.startDate | date: 'd MMMM' }} au
+        {{ session.endDate | date: 'd MMMM y' }}
+      </p>
+    </div>
+    <div class="actions">
+      @if (state() === 'ongoing') {
+        <a class="btn" routerLink="/presences" [queryParams]="{ session: session.id, date: today }">
+          Faire l'appel
+        </a>
+      }
+      @if (isAdmin()) {
+        <a class="btn btn-outline" [routerLink]="['/sessions', session.id, 'modifier']">Modifier</a>
+        <button type="button" class="btn btn-danger" (click)="delete()">Supprimer</button>
+      }
+    </div>
+  </div>
+
+  <section class="stats stats-3">
+    <div class="stat">
+      <span class="stat-value">{{ rows().length }}</span>
+      <span class="stat-label">Stagiaires</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">{{ rate() === null ? '—' : rate() + ' %' }}</span>
+      <span class="stat-label">Taux de présence</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">{{ session.trainer }}</span>
+      <span class="stat-label">Formateur</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Stagiaires</h2>
+      @if (isAdmin()) {
+        <a
+          routerLink="/stagiaires/nouveau"
+          [queryParams]="{ session: session.id }"
+          class="btn btn-small"
+        >
+          + Ajouter
+        </a>
+      }
+    </div>
+
+    @if (rows().length) {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th class="hide-mobile">Email</th>
+            <th class="num hide-mobile">Retards</th>
+            <th class="num">Absences</th>
+            <th class="num">Présence</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.trainee.id) {
+            <tr>
+              <td class="strong">{{ row.trainee.firstname }} {{ row.trainee.lastname }}</td>
+              <td class="hide-mobile muted">{{ row.trainee.email }}</td>
+              <td class="num hide-mobile">{{ row.late }}</td>
+              <td class="num">{{ row.absent }}</td>
+              <td class="num"><app-rate [value]="row.rate" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted">Aucun stagiaire inscrit pour l'instant.</p>
+    }
+  </section>
+} @else {
+  <div class="empty-state">
+    <h1>Session introuvable</h1>
+    <p class="muted">Elle a peut-être été supprimée.</p>
+    <a routerLink="/sessions" class="btn">Voir les sessions</a>
+  </div>
+}
