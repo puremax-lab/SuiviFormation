@@ -5,7 +5,7 @@
 
 ### 👉 [Try the live demo](https://puremax-lab.github.io/SuiviFormation/)
 
-No account needed: the demo opens with sample data. Use the **Rôle** menu at the top right to switch between **Administrateur** (can create, edit and delete) and **Formateur** (can only take attendance).
+No account needed: the demo opens with sample data. Use the **Rôle** menu at the top right to switch between **Administrateur** and **Formateur**.
 
 ![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
@@ -14,70 +14,34 @@ No account needed: the demo opens with sample data. Use the **Rôle** menu at th
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-## In short
-
-| | |
-|---|---|
-| **What it does** | Training centres plan sessions, register trainees and take attendance every day. Attendance rates are calculated automatically |
-| **What it shows** | A modern Angular app: standalone components, signals, reactive forms, routing with a guard, unit tests and automatic deployment |
-| **Stand-out feature** | One-click attendance (present, late or absent), and a dashboard that flags trainees under 80 % attendance |
-| **Status** | Deployed online, responsive on phones and desktops, covered by automated tests |
-
 ## Features
 
-- **Dashboard**: key figures, today's attendance to take, trainees to watch, upcoming sessions
-- **Sessions**: list filtered by status (ongoing, upcoming, finished), progress bar, attendance rate, detail page
-- **Trainees**: search (accents ignored), filter by session, add, edit and delete
-- **Attendance**: pick a session and a day, then one click per trainee, with an "everyone is present" button
-- **Two roles**: admins manage the data, trainers only take attendance
-- **Saved in the browser**: changes are kept in `localStorage`, and a link resets the demo data
+- **Dashboard**: key figures, today's attendance to take, trainees under 80 % attendance, upcoming sessions
+- **Sessions**: filter by status (ongoing, upcoming, finished), progress bar, attendance rate, detail page
+- **Trainees**: search that ignores accents, filter by session, add, edit and delete
+- **Attendance**: pick a session and a day, then one click per trainee (present, late or absent), or mark everyone present
+- **Two roles**: the admin manages the data, the trainer can only take attendance
+- **No back end**: data is saved in the browser, and the admin can reset the demo data
 
-## Screenshots
-
-| Attendance | Sessions |
+| Attendance | Session detail |
 |---|---|
-| ![Attendance](docs/screenshots/attendance.png) | ![Sessions](docs/screenshots/sessions.png) |
+| ![Attendance](docs/screenshots/attendance.png) | ![Session detail](docs/screenshots/session.png) |
 
-| Session detail | Form validation |
+| Form validation | Mobile |
 |---|---|
-| ![Session detail](docs/screenshots/session.png) | ![Trainee form](docs/screenshots/trainee-form.png) |
-
-| Mobile: dashboard | Mobile: attendance |
-|---|---|
-| ![Mobile dashboard](docs/screenshots/mobile-dashboard.png) | ![Mobile attendance](docs/screenshots/mobile-attendance.png) |
+| ![Trainee form](docs/screenshots/trainee-form.png) | ![Mobile attendance](docs/screenshots/mobile-attendance.png) |
 
 ## Technical highlights
 
-**Angular**
-- **Standalone components** and the new control flow (`@if`, `@for`), with no NgModule.
-- **Signals** for all the state (`signal`, `computed`, `input()`): pages update by themselves when the data changes.
-- **Lazy-loaded routes**: each page is downloaded only when it is opened.
-- **URL parameters bound to inputs** (`withComponentInputBinding`): the attendance page reads `?session=` and `?date=` from the URL, so it can be bookmarked or shared.
-- **Page titles** with a custom `TitleStrategy`, and French date formats with `LOCALE_ID`.
-
-**Architecture**
-- **A single store** ([`TrainingStore`](src/app/core/training-store.ts)) keeps sessions, trainees and attendance in signals and saves every change to `localStorage`. Deleting a session or a trainee also deletes the related attendance.
-- **Route guard** ([`adminGuard`](src/app/core/role.ts)): a trainer who opens a create or edit page is sent back to the dashboard.
-- **Demo data relative to today** ([`demo-data.ts`](src/app/core/demo-data.ts)): the demo always shows an ongoing, a finished and an upcoming session.
-
-**Forms**
-- **Reactive forms** with built-in and custom validators: the end date must be after the start date, and each email must be unique.
-- An error message under each invalid field, and a warning before moving a trainee to another session.
-
-**Quality**
-- **Automated tests** (Vitest): store logic, attendance rate, guard, forms, search and the attendance page.
-- **CI/CD with GitHub Actions** ([`deploy.yml`](.github/workflows/deploy.yml)): every push runs the tests, builds the app and deploys it to GitHub Pages.
-- **Accessibility**: real buttons and labels, `aria-pressed` on the status buttons, visible keyboard focus.
-
-## Tech stack
-
-| | |
-|---|---|
-| Framework | Angular 22, TypeScript 6 |
-| State | Angular signals, `localStorage` |
-| Styles | Plain CSS with custom properties, no UI library |
-| Tests | Vitest with jsdom |
-| CI/CD | GitHub Actions, GitHub Pages |
+- **Modern Angular**: standalone components, the new control flow (`@if`, `@for`) and lazy-loaded routes.
+- **Signals for all the state**: a single store ([`TrainingStore`](src/app/core/training-store.ts)) keeps sessions, trainees and attendance in signals and saves every change to `localStorage`. Deleting a session or a trainee also deletes the related attendance.
+- **Roles**: a route guard ([`adminGuard`](src/app/core/role.ts)) sends a trainer who opens a create or edit page back to the dashboard, and admin-only buttons are hidden.
+- **Reactive forms** with custom validators: the end date cannot be before the start date, and each email must be unique. A warning appears before moving a trainee to another session.
+- **Shareable URLs**: the attendance page reads `?session=` and `?date=` from the URL (`withComponentInputBinding`).
+- **Demo data relative to today** ([`demo-data.ts`](src/app/core/demo-data.ts)): there is always an ongoing, a finished and an upcoming session.
+- **Tests** with Vitest: store logic, attendance rate, roles and guard, forms, search and the attendance page.
+- **CI/CD** with GitHub Actions ([`deploy.yml`](.github/workflows/deploy.yml)): every push to `main` runs the tests, builds the app and deploys it to GitHub Pages.
+- **Responsive and accessible**: plain CSS with no UI library, real buttons and labels, `aria-pressed` on status buttons, visible keyboard focus.
 
 ## Data model
 
@@ -87,47 +51,33 @@ erDiagram
     Trainee ||--o{ AttendanceRecord : "has"
 
     Session {
-        string id
         string title
         string trainer
         string startDate
         string endDate
     }
     Trainee {
-        string id
         string firstname
         string lastname
         string email "unique"
-        string sessionId
     }
     AttendanceRecord {
-        string sessionId
-        string traineeId
         string date
         string status "present, late or absent"
     }
 ```
 
-- A session has 0 or more trainees. Each trainee belongs to exactly 1 session.
-- A trainee has at most 1 attendance record per day.
-- The attendance rate counts "late" as attended.
+Each trainee belongs to one session and has at most one attendance record per day. Being late counts as attended in the attendance rate.
 
 ## Run it locally
 
-**Requirements:** Node.js 22.22 or later.
+Requires Node.js 22.22.3+ or 24.15+.
 
 ```bash
 git clone https://github.com/puremax-lab/SuiviFormation.git
 cd SuiviFormation
 npm install
-npm start
-```
-
-Then open http://localhost:4200.
-
-**Run the tests:**
-
-```bash
+npm start      # http://localhost:4200
 npm test
 ```
 
