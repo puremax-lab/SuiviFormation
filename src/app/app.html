@@ -29,8 +29,16 @@
 </main>
 
 <footer class="container footer">
-  Données de démonstration enregistrées dans votre navigateur.
-  @if (roles.isAdmin()) {
-    <button type="button" class="link-button" (click)="resetDemo()">Réinitialiser la démo</button>
-  }
+  <p>
+    Données de démonstration enregistrées dans votre navigateur.
+    @if (roles.isAdmin()) {
+      <button type="button" class="link-button" (click)="resetDemo()">Réinitialiser la démo</button>
+    }
+  </p>
+  <nav class="footer-links" aria-label="Liens du pied de page">
+    <span>Projet portfolio de puremax-lab</span>
+    <a href="https://github.com/puremax-lab/SuiviFormation" target="_blank" rel="noopener">Code source</a>
+    <a href="https://github.com/puremax-lab" target="_blank" rel="noopener">GitHub puremax-lab</a>
+    <a routerLink="/mentions-legales">Mentions légales</a>
+  </nav>
 </footer>
